@@ -1,5 +1,7 @@
 # herdr-opencode
 
+[![npm](https://img.shields.io/npm/v/@phux/herdr-opencode)](https://www.npmjs.com/package/@phux/herdr-opencode)
+
 Native [Herdr](https://herdr.dev) lifecycle reporting for
 [OpenCode](https://opencode.ai) **v1 and v2** from one plugin.
 
@@ -44,26 +46,26 @@ prompts.
 ### OpenCode v1
 
 ```sh
-npm install -g herdr-opencode
+npm install -g @phux/herdr-opencode
 ```
 
 ```jsonc
 // ~/.config/opencode/opencode.json
 {
-  "plugin": ["herdr-opencode"]
+  "plugin": ["@phux/herdr-opencode"]
 }
 ```
 
 ### OpenCode 2 (`opencode2`)
 
 ```sh
-npm install -g herdr-opencode
+npm install -g @phux/herdr-opencode
 ```
 
 ```jsonc
 // ~/.config/opencode/opencode.json — v2 reads the same file family
 {
-  "plugins": ["herdr-opencode"]
+  "plugins": ["@phux/herdr-opencode"]
 }
 ```
 
