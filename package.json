@@ -1,6 +1,6 @@
 {
   "name": "herdr-opencode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Native Herdr lifecycle reporting for OpenCode v1 and v2 — accurate agent state and pane session restore",
   "license": "MIT",
   "author": "phux contributors",
@@ -27,9 +27,12 @@
     "node": ">=20"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/src/index.js"
   },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "files": [
+    "dist",
     "src",
     "README.md",
     "LICENSE"
@@ -37,6 +40,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build && npm test",
     "test": "tsc -p tsconfig.json && node --test dist/test/*.test.js"
   },
   "devDependencies": {
