@@ -1,0 +1,46 @@
+{
+  "name": "herdr-opencode",
+  "version": "0.1.0",
+  "description": "Native Herdr lifecycle reporting for OpenCode v1 and v2 — accurate agent state and pane session restore",
+  "license": "MIT",
+  "author": "phux contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/no-phux/herdr-opencode.git",
+    "directory": "."
+  },
+  "homepage": "https://github.com/no-phux/herdr-opencode#readme",
+  "bugs": "https://github.com/no-phux/herdr-opencode/issues",
+  "keywords": [
+    "herdr",
+    "opencode",
+    "opencode-plugin",
+    "opencode2",
+    "opencode-2",
+    "terminal",
+    "multiplexer",
+    "multi-agent",
+    "lifecycle"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.json && node --test dist/test/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

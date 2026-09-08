@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # The dual entrypoint is the whole product: assert both host surfaces
+      # evaluate on every supported Node (v1's server(), v2's id + setup(),
+      # and the named-export fallback for older v1 loaders).
+      - name: dual entrypoint smoke
+        run: |
+          node --input-type=module -e "
+          import assert from 'node:assert/strict';
+          const m = await import('./dist/src/index.js');
+          assert.equal(typeof m.default.server, 'function', 'v1 server() missing');
+          assert.equal(typeof m.default.id, 'string', 'v2 id missing');
+          assert.equal(typeof m.default.setup, 'function', 'v2 setup() missing');
+          assert.equal(typeof m.HerdrOpencodePlugin, 'function', 'named v1 export missing');
+          console.log('dual entrypoint ok on node', process.version);
+          "
+      # Outside a herdr pane the plugin must be a no-op: server() resolves to
+      # an inert hook table instead of throwing or touching the network.
+      - name: no-op smoke outside herdr
+        run: |
+          node --input-type=module -e "
+          import assert from 'node:assert/strict';
+          const m = await import('./dist/src/index.js');
+          const hooks = await m.default.server();
+          assert.deepEqual(Object.keys(hooks), ['event']);
+          await hooks.event({ event: { type: 'session.created', properties: { sessionID: 'ses_x' } } });
+          console.log('no-op outside herdr ok');
+          "

@@ -1,0 +1,51 @@
+# Publish to npm via OIDC trusted publishing. One-time setup (npm cannot
+# create a package via OIDC alone): publish the first version locally with a
+# logged-in account, then add this repo + workflow as a Trusted Publisher in
+# the package settings on npmjs.com. After that every tag publishes.
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm test
+      - name: Guard the tag against the package version
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          test "$tag" = "$version" || {
+            echo "::error::tag v$tag does not match package.json version $version"
+            exit 1
+          }
+      - name: Publish (skip if the version is already on npm)
+        run: |
+          set -euo pipefail
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if npm view "${name}@${version}" dist.shasum >/dev/null 2>&1; then
+            echo "${name}@${version} already published; nothing to do."
+            exit 0
+          fi
+          npm publish --provenance --access public --no-audit
