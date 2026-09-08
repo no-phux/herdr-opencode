@@ -1,6 +1,6 @@
 {
   "name": "@phux/herdr-opencode",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Native Herdr lifecycle reporting for OpenCode v1 and v2 — accurate agent state and pane session restore",
   "license": "MIT",
   "author": "phux contributors",
